@@ -1,13 +1,13 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const connectToDb = require("./data/db");
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const connectToDb = require('./data/db');
 
-var app = express();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -17,19 +17,19 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
   next(createError(404));
 });
 
-const startServer = async() => {
+const startServer = async () => {
   await connectToDb();
   app.listen(3000, () => {
-    console.log(`server started on port 3000`);
-  })
-}
+    console.log('server started on port 3000');
+  });
+};
 
 startServer().then(() => {
-  console.log("Server started");
-})
+  console.log('Server started');
+});
 
 module.exports = app;
