@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign,no-underscore-dangle */
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -18,13 +19,18 @@ const userSchema = new mongoose.Schema({
   passwordHash: String,
   organizations: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Organization',
+      role: {
+        enum: ['member', 'owner'],
+      },
+      orgId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organization',
+      },
     },
   ],
 });
 
-userSchama.set('toJSON', {
+userSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();
     delete ret._id;
