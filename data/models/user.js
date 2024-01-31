@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  passes: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ticket',
+  },
 });
 
 userSchema.set('toJSON', {

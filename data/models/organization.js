@@ -13,6 +13,10 @@ const organizationSchema = new mongoose.Schema({
     type: mongoose.schema.Types.ObjectId,
     ref: 'User',
   },
+  tickets: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ticket',
+  },
 });
 
 organizationSchema.set('toJSON', {
