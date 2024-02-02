@@ -1,11 +1,13 @@
 /* eslint-disable no-param-reassign,no-underscore-dangle */
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
     minLength: 5,
     required: true,
+    unique: true,
   },
   firstName: {
     type: String,
@@ -33,6 +35,8 @@ const userSchema = new mongoose.Schema({
     ref: 'Ticket',
   }],
 });
+
+userSchema.plugin(uniqueValidator);
 
 userSchema.set('toJSON', {
   transform: (doc, ret) => {
