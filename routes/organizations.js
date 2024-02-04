@@ -3,7 +3,9 @@ const bcrypt = require('bcrypt');
 const Organization = require('../data/models/organization');
 const User = require('../data/models/user');
 const tokenValidator = require('../utils/tokenValidation');
+const ticketsRouter = require('./tickets');
 
+router.use('/:orgId/tickets', ticketsRouter);
 router.get('/', async (req, res, next) => {
   try {
     const organizations = await Organization.find({}).populate('owner', { username: 1, tickets: 1 });

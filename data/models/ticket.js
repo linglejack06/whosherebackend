@@ -14,15 +14,12 @@ const ticketSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  departure: {
-    date: {
-      type: Date,
-      required: true,
-    },
-    securityStatus: {
-      enum: ['armed', 'unarmed'],
-      required: true,
-    },
+  departureTime: {
+    type: Date,
+    required: true,
+  },
+  departureStatus: {
+    enum: ['armed', 'unarmed'],
   },
 });
 
