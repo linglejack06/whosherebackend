@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 const organizationSchema = new mongoose.Schema({
   name: String,
+  passwordHash: String,
   members: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -10,13 +11,15 @@ const organizationSchema = new mongoose.Schema({
     },
   ],
   owner: {
-    type: mongoose.schema.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  tickets: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Ticket',
-  },
+  tickets: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Ticket',
+    },
+  ],
 });
 
 organizationSchema.set('toJSON', {

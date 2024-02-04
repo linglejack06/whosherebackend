@@ -17,4 +17,4 @@ const tokenValidation = async (req, res, next) => {
   }
 };
 
-module.exports = tokenValidation();
+module.exports = tokenValidation;
