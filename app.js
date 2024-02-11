@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
+const wsServer = require('./websockets/websocket');
 const errorHandler = require('./utils/errorHandler');
 
 const indexRouter = require('./routes/index');
@@ -28,8 +29,13 @@ app.use(errorHandler);
 
 const startServer = async () => {
   await connectToDb();
-  app.listen(3000, () => {
+  const httpServer = app.listen(3000, () => {
     console.log('server started on port 3000');
+  });
+  httpServer.on('upgrade', (req, socket, head) => {
+    wsServer.handleUpgrade(req, socket, head, (webSocket) => {
+      wsServer.emit('connection', webSocket, req);
+    });
   });
 };
 
