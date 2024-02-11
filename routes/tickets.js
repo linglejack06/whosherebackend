@@ -14,14 +14,25 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+// TODO: convert to websocket ?
+router.get('/unfinished', async (req, res, next) => {
+  try {
+    const tickets = await Ticket.find({ organization: req.params.ordId, departureTime: null });
+    res.json(tickets);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/', tokenValidator, async (req, res, next) => {
+  const { departureDate, departureStatus, arrival } = req.body;
   try {
     const ticket = new Ticket({
       organization: req.params.orgId,
       user: req.decodedToken.id,
-      departureTime: new Date(),
-      departureStatus: 'armed',
-      arrival: new Date(),
+      departureTime: departureDate ? new Date(departureDate) : null,
+      departureStatus,
+      arrival: new Date(arrival),
     });
     const savedTicket = await ticket.save();
     // add ticket to user
@@ -35,6 +46,20 @@ router.post('/', tokenValidator, async (req, res, next) => {
     await organization.save();
 
     res.status(201).json(savedTicket);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put('/:ticketId', async (req, res, next) => {
+  const { departureTime, departureStatus } = req.body;
+  try {
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      req.params.ticketId,
+      { departureTime: new Date(departureTime), departureStatus },
+      { new: true, runValidators: true, context: 'query' },
+    );
+    res.json(updatedTicket);
   } catch (error) {
     next(error);
   }

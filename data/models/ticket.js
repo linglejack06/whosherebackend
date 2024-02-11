@@ -19,7 +19,9 @@ const ticketSchema = new mongoose.Schema({
     required: true,
   },
   departureStatus: {
-    enum: ['armed', 'unarmed'],
+    type: String,
+    enum: ['ARMED', 'UNARMED'],
+    default: 'UNARMED',
   },
 });
 

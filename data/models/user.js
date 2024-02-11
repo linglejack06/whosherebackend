@@ -22,7 +22,9 @@ const userSchema = new mongoose.Schema({
   organizations: [
     {
       role: {
-        enum: ['member', 'owner'],
+        type: 'String',
+        enum: ['MEMBER', 'OWNER'],
+        default: 'MEMBER',
       },
       orgId: {
         type: mongoose.Schema.Types.ObjectId,
