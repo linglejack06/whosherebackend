@@ -10,9 +10,13 @@ const authenticate = async (token) => {
   const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
   return decodedToken != null;
 };
-const acceptMessage = (id, msg) => {
+const acceptMessage = (socket, msg) => {
+  const metadata = clients.get(socket);
+  if (!msg.type) {
+    socket.send('Error');
+    return;
+  }
   const messageJSON = JSON.parse(msg);
-  const metadata = clients.get(id);
   if (msg.type === 'auth') {
     metadata.authenticated = authenticate(msg.token);
     return;
@@ -28,13 +32,19 @@ const acceptMessage = (id, msg) => {
   }
 };
 
-wsServer.on('connection', (socket, request) => {
+wsServer.on('connection', (socket) => {
   const id = uniqid();
-  const metadata = { id, userId: request.decodedToken.id };
+  const metadata = { id };
   clients.set(socket, metadata);
 
   socket.on('message', (msg) => {
-    acceptMessage(id, msg);
+    acceptMessage(socket, msg);
+  });
+
+  socket.on('new ticket', (ticket) => {
+    [...clients.keys()].forEach((client) => {
+      client.send(ticket);
+    });
   });
 
   socket.on('close', () => {
