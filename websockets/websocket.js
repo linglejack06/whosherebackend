@@ -1,34 +1,45 @@
+/* eslint-disable no-param-reassign */
 // eslint-disable-next-line import/no-extraneous-dependencies
 const ws = require('ws');
 const uniqid = require('uniqid');
 const jwt = require('jsonwebtoken');
+const User = require('../data/models/user');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
 
-const authenticate = async (token) => {
+const authenticate = async (token, metadata) => {
   const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
-  return decodedToken != null;
+  if (decodedToken != null) {
+    metadata.authenticated = true;
+    const user = await User.findById(decodedToken.id);
+    metadata.organizations = user.organizations.map((org) => org.orgId);
+    return;
+  }
+  metadata.authenticated = false;
 };
-const acceptMessage = (socket, msg) => {
+const acceptMessage = async (socket, msg) => {
   const metadata = clients.get(socket);
-  if (!msg.type) {
+  const messageJSON = JSON.parse(msg);
+  if (!messageJSON.type) {
     socket.send('Error');
     return;
   }
-  const messageJSON = JSON.parse(msg);
-  if (msg.type === 'auth') {
-    metadata.authenticated = authenticate(msg.token);
-    return;
+  if (messageJSON.type === 'auth') {
+    await authenticate(messageJSON.token, metadata);
   }
 
   // only allow messages if authenticated
   if (metadata.authenticated) {
     messageJSON.sender = metadata.id;
-    const outbound = JSON.stringify(messageJSON);
-    [...clients.keys()].forEach((client) => {
-      client.send(outbound);
-    });
+    if (messageJSON.type === 'new ticket') {
+      console.log('ticket post');
+    } else {
+      const outbound = JSON.stringify(messageJSON);
+      [...clients.keys()].forEach((client) => {
+        client.send(outbound);
+      });
+    }
   }
 };
 
@@ -39,13 +50,6 @@ wsServer.on('connection', (socket) => {
 
   socket.on('message', (msg) => {
     acceptMessage(socket, msg);
-  });
-
-  socket.on('new ticket', (ticket) => {
-    console.log('emitting ticket');
-    [...clients.keys()].forEach((client) => {
-      client.send(ticket);
-    });
   });
 
   socket.on('close', () => {
