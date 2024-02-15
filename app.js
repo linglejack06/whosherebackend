@@ -1,7 +1,7 @@
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
-const wsServer = require('./websockets/websocket');
+const { wsServer } = require('./websockets/websocket');
 const startWatch = require('./websockets/ticketWatcher');
 const errorHandler = require('./utils/errorHandler');
 

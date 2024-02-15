@@ -42,6 +42,7 @@ wsServer.on('connection', (socket) => {
   });
 
   socket.on('new ticket', (ticket) => {
+    console.log('emitting ticket');
     [...clients.keys()].forEach((client) => {
       client.send(ticket);
     });
@@ -52,4 +53,4 @@ wsServer.on('connection', (socket) => {
   });
 });
 
-module.exports = wsServer;
+module.exports = { wsServer, clients };
