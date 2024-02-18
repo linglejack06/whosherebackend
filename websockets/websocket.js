@@ -4,7 +4,7 @@ const ws = require('ws');
 const uniqid = require('uniqid');
 const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
-const Ticket = require('../data/models/ticket');
+const createTicket = require('../utils/createTicket');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
@@ -12,10 +12,14 @@ const clients = new Map();
 const authenticate = async (token, metadata) => {
   const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
   if (decodedToken != null) {
-    metadata.authenticated = true;
     const user = await User.findById(decodedToken.id);
-    metadata.organizations = user.organizations.map((org) => org.orgId);
-    console.log(metadata);
+    if (user) {
+      metadata.authenticated = true;
+      metadata.userId = user.id;
+      metadata.organizations = user.organizations.map((org) => org.orgId);
+    } else {
+      metadata.authenticated = false;
+    }
     return;
   }
   metadata.authenticated = false;
@@ -34,8 +38,12 @@ const acceptMessage = async (socket, msg) => {
   // only allow messages if authenticated
   if (metadata.authenticated) {
     messageJSON.sender = metadata.id;
+    console.log(messageJSON);
     if (messageJSON.type === 'new ticket') {
       console.log('ticket post');
+      await createTicket(metadata, messageJSON.fields, (error) => {
+        socket.send(JSON.stringify(error));
+      });
     } else {
       const outbound = JSON.stringify(messageJSON);
       [...clients.keys()].forEach((client) => {
