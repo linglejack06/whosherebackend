@@ -28,6 +28,7 @@ const ticketSchema = new mongoose.Schema({
 ticketSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id.toString();
+    delete ret._id;
     // todo: convert dates to javascript date object
   },
 });

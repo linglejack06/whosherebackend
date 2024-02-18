@@ -4,6 +4,7 @@ const ws = require('ws');
 const uniqid = require('uniqid');
 const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
+const Ticket = require('../data/models/ticket');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
@@ -14,6 +15,7 @@ const authenticate = async (token, metadata) => {
     metadata.authenticated = true;
     const user = await User.findById(decodedToken.id);
     metadata.organizations = user.organizations.map((org) => org.orgId);
+    console.log(metadata);
     return;
   }
   metadata.authenticated = false;
