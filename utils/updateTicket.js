@@ -11,22 +11,28 @@ const updateTicketArrival = async (id, arrival, handleError) => {
 
 const updateTicketStatus = async (id, active, handleError) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(id, { active });
-    return ticket;
+    return await Ticket.findByIdAndUpdate(
+      id,
+      { active },
+      { new: true },
+    );
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 };
 
 const updateTicketDeparture = async (id, departure, handleError) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(id, {
-      departureTime: new Date(departure.time),
-      departureStatus: departure.status,
-    });
-    return ticket;
+    return await Ticket.findByIdAndUpdate(
+      id,
+      {
+        departureTime: new Date(departure.time),
+        departureStatus: departure.status,
+      },
+      { new: true },
+    );
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 };
 
