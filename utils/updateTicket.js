@@ -2,10 +2,13 @@ const Ticket = require('../data/models/ticket');
 
 const updateTicketArrival = async (id, arrival, handleError) => {
   try {
-    const ticket = await Ticket.findByIdAndUpdate(id, { arrival: new Date(arrival) });
-    return ticket;
+    return await Ticket.findByIdAndUpdate(
+      id,
+      { arrival: new Date(arrival) },
+      { new: true },
+    );
   } catch (error) {
-    handleError(error);
+    return handleError(error);
   }
 };
 
