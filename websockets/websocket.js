@@ -17,6 +17,8 @@ const authenticate = async (token, metadata) => {
       metadata.authenticated = true;
       metadata.userId = user.id;
       metadata.organizations = user.organizations.map((org) => org.orgId);
+      // eslint-disable-next-line prefer-destructuring
+      metadata.activeOrganization = metadata.organizations[0];
     } else {
       metadata.authenticated = false;
     }
@@ -32,23 +34,29 @@ const acceptMessage = async (socket, msg) => {
     return;
   }
   if (messageJSON.type === 'auth') {
-    await authenticate(messageJSON.token, metadata);
+    await authenticate(messageJSON.fields.token, metadata);
+    socket.send(metadata.authenticated ? 'Authentication Successful' : 'Authentication Failed');
+    return;
   }
 
   // only allow messages if authenticated
   if (metadata.authenticated) {
     messageJSON.sender = metadata.id;
-    console.log(messageJSON);
     if (messageJSON.type === 'new ticket') {
-      console.log('ticket post');
       await createTicket(metadata, messageJSON.fields, (error) => {
         socket.send(JSON.stringify(error));
       });
-    } else {
-      const outbound = JSON.stringify(messageJSON);
-      [...clients.keys()].forEach((client) => {
-        client.send(outbound);
-      });
+      return;
+    }
+    if (messageJSON.type === 'change organization') {
+      for (let i = 0; i < metadata.organizations.length; i += 1) {
+        if (metadata.organizations[i].equals(messageJSON.fields.organization)) {
+          metadata.activeOrganization = metadata.organizations[i];
+          socket.send(`Successfully changed organization to ${metadata.activeOrganization}`);
+          return;
+        }
+      }
+      socket.send('This organization does not exist in your list');
     }
   }
 };

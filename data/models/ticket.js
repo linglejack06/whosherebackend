@@ -23,6 +23,7 @@ const ticketSchema = new mongoose.Schema({
     enum: ['ARMED', 'UNARMED'],
     default: 'UNARMED',
   },
+  active: Boolean,
 });
 
 ticketSchema.set('toJSON', {

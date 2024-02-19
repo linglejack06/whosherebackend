@@ -11,15 +11,13 @@ const startWatch = () => {
       delete fullDocument._id;
       delete fullDocument.__v;
       if (metadata.authenticated) {
-        metadata.organizations.forEach((org) => {
-          if (org.equals(fullDocument.organization)) {
-            if (operationType === 'update') {
-              client.send(JSON.stringify({ type: 'update', ...data.updateDescription.updatedFields }));
-            } else if (operationType === 'insert') {
-              client.send(JSON.stringify({ type: 'insert', fullDocument }));
-            }
+        if (metadata.activeOrganization.equals(fullDocument.organization)) {
+          if (operationType === 'update') {
+            client.send(JSON.stringify({ type: 'update', ...data.updateDescription.updatedFields }));
+          } else if (operationType === 'insert') {
+            client.send(JSON.stringify({ type: 'insert', fullDocument }));
           }
-        });
+        }
       }
     });
   });

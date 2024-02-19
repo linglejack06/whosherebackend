@@ -13,6 +13,7 @@ const createTicket = async (metadata, fields, handleError) => {
       departureTime: departureDate ? new Date(departureDate) : null,
       departureStatus,
       arrival: new Date(arrival),
+      active: !departureDate,
     });
     const savedTicket = await ticket.save();
     // add ticket to user
