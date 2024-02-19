@@ -27,6 +27,9 @@ const authenticate = async (token, metadata) => {
   }
   metadata.authenticated = false;
 };
+const handleError = (socket, error) => {
+  socket.send(JSON.stringify(error));
+};
 
 const changeOrganization = (socket, metadata, messageJSON) => {
   for (let i = 0; i < metadata.organizations.length; i += 1) {
@@ -36,11 +39,10 @@ const changeOrganization = (socket, metadata, messageJSON) => {
       return;
     }
   }
-  socket.send('This organization does not exist in your list');
-};
-
-const handleError = (socket, error) => {
-  socket.send(JSON.stringify(error));
+  handleError(socket, {
+    type: 'operation_fail',
+    message: 'requested organization does not exist in user\'s organizations',
+  });
 };
 
 const acceptMessage = async (socket, msg) => {
