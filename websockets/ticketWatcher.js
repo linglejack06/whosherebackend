@@ -13,9 +13,9 @@ const startWatch = () => {
       if (metadata.authenticated) {
         if (metadata.activeOrganization.equals(fullDocument.organization)) {
           if (operationType === 'update') {
-            client.send(JSON.stringify({ type: 'update', ...data.updateDescription.updatedFields }));
+            client.send(JSON.stringify({ type: 'update', contents: data.updateDescription.updatedFields }));
           } else if (operationType === 'insert') {
-            client.send(JSON.stringify({ type: 'insert', fullDocument }));
+            client.send(JSON.stringify({ type: 'insert', contents: fullDocument }));
           }
         }
       }

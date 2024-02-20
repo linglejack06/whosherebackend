@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const createTicket = require('../utils/createTicket');
 const { getActiveTickets, getAllTickets } = require('../utils/getTickets');
+const { updateTicketDeparture } = require('../utils/updateTicket');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
@@ -70,12 +71,28 @@ const acceptMessage = async (socket, msg) => {
     messageJSON.sender = metadata.id;
     switch (messageJSON.type) {
       case 'new_ticket':
-        await createTicket(metadata, messageJSON.fields, (error) => {
-          handleError(socket, error);
-        });
+        await createTicket(
+          metadata,
+          messageJSON.fields,
+          (error) => {
+            handleError(socket, error);
+          },
+        );
         return;
       case 'change_organization':
         changeOrganization(socket, metadata, messageJSON);
+        return;
+      case 'end_ticket':
+        await updateTicketDeparture(
+          messageJSON.fields.id,
+          {
+            status: messageJSON.fields.departureStatus,
+            time: messageJSON.fields.departureTime,
+          },
+          (error) => {
+            handleError(socket, error);
+          },
+        );
         return;
       default:
         handleError(socket, {

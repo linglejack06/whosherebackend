@@ -31,6 +31,7 @@ const updateTicketDeparture = async (id, departure, handleError) => {
       {
         departureTime: new Date(departure.time),
         departureStatus: departure.status,
+        active: false,
       },
       { new: true },
     );
