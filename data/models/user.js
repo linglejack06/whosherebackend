@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   passwordHash: String,
+  notificationToken: String,
   organizations: [
     {
       role: {
