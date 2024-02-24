@@ -3,7 +3,7 @@ const Ticket = require('../data/models/ticket');
 const { clients } = require('./websocket');
 
 const startWatch = () => {
-  Ticket.watch().on('change', (data) => {
+  Ticket.watch().on('change', async (data) => {
     [...clients.keys()].forEach((client) => {
       const metadata = clients.get(client);
       const { fullDocument, operationType } = data;
