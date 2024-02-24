@@ -36,7 +36,10 @@ const changeOrganization = (socket, metadata, messageJSON) => {
   for (let i = 0; i < metadata.organizations.length; i += 1) {
     if (metadata.organizations[i].equals(messageJSON.fields.organization)) {
       metadata.activeOrganization = metadata.organizations[i];
-      socket.send(`Successfully changed organization to ${metadata.activeOrganization}`);
+      // send the new tickets
+      socket.send(JSON.stringify(getAllTickets(metadata.activeOrganization, (error) => {
+        handleError(socket, error);
+      })));
       return;
     }
   }
