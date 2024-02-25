@@ -38,11 +38,37 @@ router.post('/', tokenValidator, async (req, res, next) => {
     const savedOrg = await org.save();
     const user = await User.findById(req.decodedToken.id);
     user.organizations = user.organizations.concat({
-      role: 'owner',
+      role: 'OWNER',
       orgId: savedOrg.id,
     });
     await user.save();
     res.status(201).json(savedOrg);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/:id/users', tokenValidator, async (req, res, next) => {
+  const { passkey } = req.body;
+  try {
+    const user = await User.findById(req.decodedToken.id);
+    const org = await Organization.findById(req.params.id);
+    const pwCorrect = await bcrypt.compare(org.passwordHash, passkey);
+    const alreadyOrganization = user.organizations.includes(
+      (organization) => organization.id === req.params.id,
+    );
+    if (pwCorrect && !alreadyOrganization) {
+      org.members = [...org.members, user.id];
+      user.organizations = [...user.organizations, org.id];
+      await org.save();
+      const savedUser = await user.save();
+      res.status(201).json(savedUser.populate('organizations'));
+    } else {
+      next({
+        name: 'CustomError',
+        message: 'Invalid passkey or organization already added',
+      });
+    }
   } catch (error) {
     next(error);
   }

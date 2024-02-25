@@ -16,7 +16,7 @@ const errorHandler = (error, request, response, next) => {
     return response.status(401).json({ error: error.message });
   }
 
-  return next(error);
+  return response.status(401).json({ error: error.message });
 };
 
 module.exports = errorHandler;
