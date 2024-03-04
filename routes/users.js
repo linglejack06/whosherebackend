@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const User = require('../data/models/user');
+const NotificationToken = require('../data/models/notificationToken');
 
 const router = express.Router();
 
@@ -31,6 +32,22 @@ router.post('/', async (req, res, next) => {
     });
     const savedUser = await user.save();
     res.status(201).json(savedUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/:id/notificationToken', async (req, res, next) => {
+  const { notifToken } = req.body;
+  try {
+    const user = await User.findById(req.params.id);
+    const notif = new NotificationToken({
+      user: user.id,
+      token: notifToken,
+    });
+    user.notificationToken = notif.id;
+    await user.save();
+    return res.status(201);
   } catch (error) {
     next(error);
   }

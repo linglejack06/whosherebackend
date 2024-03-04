@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   passwordHash: String,
-  notificationToken: String,
   organizations: [
     {
       role: {
@@ -37,6 +36,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Ticket',
   }],
+  notificationToken: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'NotificationToken',
+  },
 });
 
 userSchema.plugin(uniqueValidator);
