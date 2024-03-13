@@ -13,7 +13,7 @@ router.post('/', async (req, res, next) => {
       const pwCorrect = await bcrpyt.compare(password, user.passwordHash);
       if (!pwCorrect) {
         next({
-          name: 'CustomError',
+          name: 'AuthError',
           message: 'Invalid Password',
         });
       }
@@ -27,7 +27,7 @@ router.post('/', async (req, res, next) => {
       return res.json({ token, name: `${user.firstName} ${user.lastName}` });
     }
     next({
-      name: 'CustomError',
+      name: 'AuthError',
       message: 'Invalid Username',
     });
   } catch (error) {

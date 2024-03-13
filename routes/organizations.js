@@ -63,10 +63,15 @@ router.post('/:id/users', tokenValidator, async (req, res, next) => {
       await org.save();
       const savedUser = await user.save();
       res.status(201).json(savedUser.populate('organizations'));
+    } else if (!pwCorrect) {
+      next({
+        name: 'AuthError',
+        message: 'Invalid organization passkey',
+      });
     } else {
       next({
         name: 'CustomError',
-        message: 'Invalid passkey or organization already added',
+        message: 'organization already added',
       });
     }
   } catch (error) {
