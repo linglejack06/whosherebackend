@@ -12,21 +12,26 @@ const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
 
 const authenticate = async (token, metadata) => {
-  const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
-  if (decodedToken != null) {
-    const user = await User.findById(decodedToken.id);
-    if (user) {
-      metadata.authenticated = true;
-      metadata.userId = user.id;
-      metadata.organizations = user.organizations.map((org) => org.orgId);
-      // eslint-disable-next-line prefer-destructuring
-      metadata.activeOrganization = metadata.organizations[0];
-    } else {
-      metadata.authenticated = false;
+  try {
+    const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
+    if (decodedToken != null) {
+      const user = await User.findById(decodedToken.id);
+      if (user) {
+        metadata.authenticated = true;
+        metadata.userId = user.id;
+        metadata.organizations = user.organizations.map((org) => org.orgId);
+        // eslint-disable-next-line prefer-destructuring
+        metadata.activeOrganization = metadata.organizations[0];
+      } else {
+        metadata.authenticated = false;
+      }
+      return;
     }
-    return;
+    metadata.authenticated = false;
+  } catch (error) {
+    metadata.authenticated = false;
+    handleError(error);
   }
-  metadata.authenticated = false;
 };
 const handleError = (socket, error) => {
   socket.send(JSON.stringify(error));
@@ -51,7 +56,7 @@ const changeOrganization = (socket, metadata, messageJSON) => {
 
 const acceptMessage = async (socket, msg) => {
   const metadata = clients.get(socket);
-  const messageJSON = JSON.parse(msg);
+  const messageJSON = msg.length !== 0 ? JSON.parse(msg) : {};
   if (!messageJSON.type) {
     handleError(socket, {
       type: 'type_error',
@@ -60,7 +65,13 @@ const acceptMessage = async (socket, msg) => {
     return;
   }
   if (messageJSON.type === 'auth') {
-    await authenticate(messageJSON.fields.token, metadata);
+    await authenticate(
+      messageJSON.fields.token,
+      metadata,
+      (err) => {
+        handleError(socket, err);
+      },
+    );
     socket.send(metadata.authenticated
       ? JSON.stringify(
         await getAllTickets(metadata.activeOrganization, (error) => handleError(socket, error)),
