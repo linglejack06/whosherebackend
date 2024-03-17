@@ -77,7 +77,10 @@ const acceptMessage = async (socket, msg) => {
     );
     socket.send(metadata.authenticated
       ? JSON.stringify({
-        ...await getAllTickets(metadata.activeOrganization, (error) => handleError(socket, error)),
+        contents: await getAllTickets(
+          metadata.activeOrganization,
+          (error) => handleError(socket, error),
+        ),
         type: 'all_tickets',
       })
       : JSON.stringify({
