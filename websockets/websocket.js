@@ -11,7 +11,7 @@ const { updateTicketDeparture } = require('../utils/updateTicket');
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
 
-const authenticate = async (token, metadata) => {
+const authenticate = async (token, metadata, handleError) => {
   try {
     const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
     if (decodedToken != null) {
@@ -34,7 +34,10 @@ const authenticate = async (token, metadata) => {
   }
 };
 const handleError = (socket, error) => {
-  socket.send(JSON.stringify(error));
+  socket.send(JSON.stringify({
+    ...error,
+    type: 'error',
+  }));
 };
 
 const changeOrganization = (socket, metadata, messageJSON) => {
@@ -68,15 +71,19 @@ const acceptMessage = async (socket, msg) => {
     await authenticate(
       messageJSON.fields.token,
       metadata,
-      (err) => {
-        handleError(socket, err);
+      (error) => {
+        handleError(socket, error);
       },
     );
     socket.send(metadata.authenticated
-      ? JSON.stringify(
-        await getAllTickets(metadata.activeOrganization, (error) => handleError(socket, error)),
-      )
-      : 'Authentication Failed');
+      ? JSON.stringify({
+        ...await getAllTickets(metadata.activeOrganization, (error) => handleError(socket, error)),
+        type: 'all_tickets',
+      })
+      : JSON.stringify({
+        name: 'AuthError',
+        message: 'Authentication Failed',
+      }));
     return;
   }
 
@@ -110,7 +117,7 @@ const acceptMessage = async (socket, msg) => {
         return;
       default:
         handleError(socket, {
-          type: 'type_error',
+          name: 'type_error',
           message: 'Unsupported operation type in message',
         });
     }
