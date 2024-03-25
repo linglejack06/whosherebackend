@@ -63,7 +63,7 @@ const acceptMessage = async (socket, msg) => {
   if (!messageJSON.type) {
     handleError(socket, {
       type: 'type_error',
-      desc: 'No type was provided in message sent to server',
+      message: 'No type was provided in message sent to server',
     });
     return;
   }
@@ -75,19 +75,20 @@ const acceptMessage = async (socket, msg) => {
         handleError(socket, error);
       },
     );
-    socket.send(metadata.authenticated
-      ? JSON.stringify({
+
+    if (metadata.authenticated) {
+      socket.send(JSON.stringify({
         contents: await getAllTickets(
           metadata.activeOrganization,
           (error) => handleError(socket, error),
         ),
-        type: 'all_tickets',
-      })
-      : JSON.stringify({
+      }));
+    } else {
+      handleError(socket, {
         name: 'AuthError',
         message: 'Authentication Failed',
-      }));
-    return;
+      });
+    }
   }
 
   // only allow messages if authenticated
