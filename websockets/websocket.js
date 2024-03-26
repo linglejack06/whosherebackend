@@ -78,6 +78,7 @@ const acceptMessage = async (socket, msg) => {
 
     if (metadata.authenticated) {
       socket.send(JSON.stringify({
+        type: 'all_tickets',
         contents: await getAllTickets(
           metadata.activeOrganization,
           (error) => handleError(socket, error),
@@ -89,10 +90,7 @@ const acceptMessage = async (socket, msg) => {
         message: 'Authentication Failed',
       });
     }
-  }
-
-  // only allow messages if authenticated
-  if (metadata.authenticated) {
+  } else if (metadata.authenticated) {
     messageJSON.sender = metadata.id;
     switch (messageJSON.type) {
       case 'new_ticket':
@@ -139,6 +137,7 @@ wsServer.on('connection', (socket) => {
 
   socket.on('close', () => {
     clients.delete(socket);
+    console.log('connection closed');
   });
 });
 

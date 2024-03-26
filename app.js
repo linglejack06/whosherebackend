@@ -36,6 +36,7 @@ const startServer = async () => {
   startWatch();
   httpServer.on('upgrade', (req, socket, head) => {
     wsServer.handleUpgrade(req, socket, head, (webSocket) => {
+      console.log('connection established');
       wsServer.emit('connection', webSocket, req);
     });
   });
