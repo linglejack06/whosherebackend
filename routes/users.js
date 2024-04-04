@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const NotificationToken = require('../data/models/notificationToken');
 
@@ -30,8 +31,15 @@ router.post('/', async (req, res, next) => {
       lastName,
       tickets: [],
     });
+    const userForToken = {
+      username: user.username,
+      id: user.id,
+    };
+    const token = jwt.sign(userForToken, process.env.SECRET_KEY, {
+      expiresIn: '24h',
+    });
     const savedUser = await user.save();
-    res.status(201).json(savedUser);
+    res.status(201).json({ token, name: `${user.firstName} ${user.lastName}` });
   } catch (error) {
     next(error);
   }
