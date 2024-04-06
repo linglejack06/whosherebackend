@@ -25,7 +25,7 @@ router.post('/', async (req, res, next) => {
         expiresIn: '24h',
       });
       return res.json({
-        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations, tickets: user.tickets,
+        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations,
       });
     }
     next({
