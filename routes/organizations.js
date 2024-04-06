@@ -43,7 +43,7 @@ router.post('/', tokenValidator, async (req, res, next) => {
       orgId: savedOrg.id,
     });
     await user.save();
-    res.status(201).json(savedOrg);
+    res.status(201).json(user.organizations);
   } catch (error) {
     next(error);
   }
@@ -63,7 +63,7 @@ router.post('/:id/users', tokenValidator, async (req, res, next) => {
       user.organizations = [...user.organizations, org.id];
       await org.save();
       const savedUser = await user.save();
-      res.status(201).json(savedUser.populate('organizations'));
+      res.status(201).json(user.organizations);
     } else if (!pwCorrect) {
       next({
         name: 'AuthError',

@@ -39,7 +39,9 @@ router.post('/', async (req, res, next) => {
       expiresIn: '24h',
     });
     const savedUser = await user.save();
-    res.status(201).json({ token, name: `${user.firstName} ${user.lastName}` });
+    res.status(201).json({
+      token, name: `${user.firstName} ${user.lastName}`,
+    });
   } catch (error) {
     next(error);
   }

@@ -2,10 +2,11 @@ const jwt = require('jsonwebtoken');
 
 const tokenValidation = async (req, res, next) => {
   try {
-    let auth = req.get('authorization');
+    const auth = req.get('authorization');
     if (auth && auth.startsWith('Bearer')) {
-      auth = auth.replace('Bearer ', '');
-      req.decodedToken = await jwt.verify(auth, process.env.SECRET_KEY);
+      const token = auth.replace('Bearer ', '');
+      req.decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
+      req.token = auth;
       next();
     } else {
       next({
