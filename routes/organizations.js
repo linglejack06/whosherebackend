@@ -8,9 +8,10 @@ const ticketsRouter = require('./tickets');
 router.use('/:orgId/tickets', ticketsRouter);
 router.get('/', async (req, res, next) => {
   try {
-    const organizations = await Organization.find({}).populate('owner', { username: 1 });
+    const organizations = await Organization.find({});
     res.json(organizations);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });
