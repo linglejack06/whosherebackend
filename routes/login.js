@@ -7,7 +7,7 @@ router.post('/', async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).populate('organizations');
 
     if (user) {
       const pwCorrect = await bcrpyt.compare(password, user.passwordHash);
