@@ -25,6 +25,7 @@ const createTicket = async (metadata, fields, handleError) => {
     const organization = await Organization.findById(orgId);
     organization.tickets = organization.tickets.concat(savedTicket.id);
     await organization.save();
+    return ticket;
   } catch (error) {
     handleError(error);
   }
