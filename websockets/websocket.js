@@ -13,7 +13,9 @@ const clients = new Map();
 
 const authenticate = async (token, metadata, handleError) => {
   try {
+    console.log('running auth');
     const decodedToken = await jwt.verify(token, process.env.SECRET_KEY);
+    console.log(decodedToken);
     if (decodedToken != null) {
       const user = await User.findById(decodedToken.id);
       if (user) {
@@ -24,18 +26,22 @@ const authenticate = async (token, metadata, handleError) => {
         metadata.activeOrganization = metadata.organizations[0];
       } else {
         metadata.authenticated = false;
+        handleError({ type: 'AuthError', message: 'Failed to Authenticate' });
       }
       return;
     }
     metadata.authenticated = false;
+    handleError({ type: 'AuthError', message: 'Failed to Authenticate' });
   } catch (error) {
     metadata.authenticated = false;
-    handleError(error);
+    console.log(error.type);
+    handleError({ type: 'AuthError', message: error.name === 'TokenExpiredError' ? 'Logged out due to Inactivity' : error.message });
   }
 };
 const handleError = (socket, error) => {
   socket.send(JSON.stringify({
     ...error,
+    errorType: (error && error.type) ? error.type : 'default',
     type: 'error',
   }));
 };
@@ -84,11 +90,6 @@ const acceptMessage = async (socket, msg) => {
           (error) => handleError(socket, error),
         ),
       }));
-    } else {
-      handleError(socket, {
-        type: 'AuthError',
-        message: 'Authentication Failed',
-      });
     }
   } else if (metadata.authenticated) {
     messageJSON.sender = metadata.id;
