@@ -86,7 +86,7 @@ const acceptMessage = async (socket, msg) => {
       }));
     } else {
       handleError(socket, {
-        name: 'AuthError',
+        type: 'AuthError',
         message: 'Authentication Failed',
       });
     }
@@ -122,7 +122,7 @@ const acceptMessage = async (socket, msg) => {
         return;
       default:
         handleError(socket, {
-          name: 'type_error',
+          type: 'type_error',
           message: 'Unsupported operation type in message',
         });
     }
