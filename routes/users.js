@@ -24,7 +24,7 @@ router.post('/', async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = new User({
-      username,
+      username: username.toLowerCase(),
       passwordHash,
       organizations,
       firstName,
