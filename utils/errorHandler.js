@@ -21,6 +21,9 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'OrgAuthError') {
     return response.status(401).json({ type: 'modal', message: error.message });
   }
+  if (error.name === 'OrgError') {
+    return response.status(401).json({ type: 'modal', message: error.message });
+  }
 
   return response.status(401).json({ type: 'default', message: error.message });
 };

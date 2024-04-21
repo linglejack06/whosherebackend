@@ -9,7 +9,7 @@ const router = express.Router();
 /* GET users listing. */
 router.get('/', async (req, res, next) => {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).populate('organizations.orgId');
     res.json(users);
   } catch (error) {
     next(error);

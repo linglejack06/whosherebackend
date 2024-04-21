@@ -29,6 +29,9 @@ router.post('/', tokenValidator, async (req, res, next) => {
   const { passkey, name } = req.body;
   try {
     const pwHash = await bcrypt.hash(passkey, 10);
+    if (Organization.findOne({ name })) {
+      return next({ name: 'OrgError', message: 'Organization already exists' });
+    }
     const org = new Organization({
       name,
       passwordHash: pwHash,
