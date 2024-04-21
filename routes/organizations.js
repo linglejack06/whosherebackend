@@ -45,7 +45,10 @@ router.post('/', tokenValidator, async (req, res, next) => {
     await user.save();
     res.status(201).json(org);
   } catch (error) {
-    next(error);
+    next({
+      name: 'OrgAuthError',
+      message: error.message,
+    });
   }
 });
 
@@ -60,13 +63,13 @@ router.post('/:id/users', tokenValidator, async (req, res, next) => {
     );
     if (pwCorrect && !alreadyOrganization) {
       org.members = [...org.members, user.id];
-      user.organizations = [...user.organizations, org.id];
+      user.organizations = [...user.organizations, { role: 'MEMBER', orgId: org.id }];
       await org.save();
       const savedUser = await user.save();
       res.status(201).json(org);
     } else if (!pwCorrect) {
       next({
-        name: 'AuthError',
+        name: 'OrgAuthError',
         message: 'Invalid organization passkey',
       });
     } else {
@@ -76,7 +79,10 @@ router.post('/:id/users', tokenValidator, async (req, res, next) => {
       });
     }
   } catch (error) {
-    next(error);
+    next({
+      name: 'OrgAuthError',
+      message: error.message,
+    });
   }
 });
 
