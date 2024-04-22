@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const organization = await Organization.findById(req.params.id);
+    const organization = await Organization.findById(req.params.id).populate('members', { username: 1, firstName: 1, lastName: 1 }).populate('owner', { username: 1, firstName: 1, lastName: 1 });
     res.json(organization);
   } catch (error) {
     next(error);
