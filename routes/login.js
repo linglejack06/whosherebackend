@@ -7,7 +7,7 @@ router.post('/', async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username }).populate('organizations');
+    const user = await User.findOne({ username }).populate('organizations.orgId', { id: 1, name: 1 });
 
     if (user) {
       const pwCorrect = await bcrpyt.compare(password, user.passwordHash);
@@ -25,7 +25,7 @@ router.post('/', async (req, res, next) => {
         expiresIn: '24h',
       });
       return res.json({
-        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations,
+        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId),
       });
     }
     next({
