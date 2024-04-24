@@ -90,6 +90,9 @@ const acceptMessage = async (socket, msg) => {
           (error) => handleError(socket, error),
         ),
       }));
+      socket.send(JSON.stringify({
+        ...await User.findById(metadata.userId).populate('organizations.orgId'),
+      }));
     }
   } else if (metadata.authenticated) {
     messageJSON.sender = metadata.id;

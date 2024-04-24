@@ -47,6 +47,20 @@ router.post('/', async (req, res, next) => {
   }
 });
 
+router.get('/:token', async (req, res, next) => {
+  const { token } = req.params;
+  try {
+    const decodedToken = await jwt.decode(token, process.env.SECRET_KEY);
+    if (decodedToken) {
+      const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 });
+
+      return res.json({ name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post('/:id/notificationToken', async (req, res, next) => {
   const { notifToken } = req.body;
   try {
