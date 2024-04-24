@@ -46,21 +46,29 @@ const handleError = (socket, error) => {
   }));
 };
 
-const changeOrganization = (socket, metadata, messageJSON) => {
+const changeOrganization = async (socket, metadata, messageJSON) => {
+  let found = false;
   for (let i = 0; i < metadata.organizations.length; i += 1) {
     if (metadata.organizations[i].equals(messageJSON.fields.organization)) {
       metadata.activeOrganization = metadata.organizations[i];
-      // send the new tickets
-      socket.send(JSON.stringify(getAllTickets(metadata.activeOrganization, (error) => {
-        handleError(socket, error);
-      })));
-      return;
+      found = true;
+      break;
     }
   }
-  handleError(socket, {
-    type: 'operation_fail',
-    message: 'requested organization does not exist in user\'s organizations',
-  });
+  // send the new tickets
+  if (found) {
+    socket.send(JSON.stringify({
+      type: 'all_tickets',
+      contents: await getAllTickets(metadata.activeOrganization, (error) => {
+        handleError(socket, error);
+      }),
+    }));
+  } else {
+    handleError(socket, {
+      type: 'operation_fail',
+      message: 'requested organization does not exist in user\'s organizations',
+    });
+  }
 };
 
 const acceptMessage = async (socket, msg) => {
@@ -109,8 +117,8 @@ const acceptMessage = async (socket, msg) => {
           ),
         }));
         return;
-      case 'change_organization':
-        changeOrganization(socket, metadata, messageJSON);
+      case 'change_active_organization':
+        await changeOrganization(socket, metadata, messageJSON);
         return;
       case 'end_ticket':
         await updateTicketDeparture(

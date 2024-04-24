@@ -40,7 +40,7 @@ router.post('/', async (req, res, next) => {
     });
     const savedUser = await user.save();
     res.status(201).json({
-      token, name: `${user.firstName} ${user.lastName}`,
+      token, name: `${user.firstName} ${user.lastName}`, username,
     });
   } catch (error) {
     next(error);
