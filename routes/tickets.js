@@ -3,6 +3,7 @@ const Ticket = require('../data/models/ticket');
 const createTicket = require('../utils/createTicket');
 
 const tokenValidator = require('../utils/tokenValidation');
+const { getActiveTickets } = require('../utils/getTickets');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -13,10 +14,12 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// TODO: convert to websocket ?
 router.get('/unfinished', async (req, res, next) => {
   try {
-    const tickets = await Ticket.find({ organization: req.params.ordId, departureTime: null });
+    const tickets = await getActiveTickets(
+      req.params.orgId,
+      (err) => next({ name: err.type, message: err.message }),
+    );
     res.json(tickets);
   } catch (error) {
     next(error);
