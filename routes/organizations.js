@@ -29,7 +29,8 @@ router.post('/', tokenValidator, async (req, res, next) => {
   const { passkey, name } = req.body;
   try {
     const pwHash = await bcrypt.hash(passkey, 10);
-    if (Organization.findOne({ name })) {
+    const orgExists = await Organization.findOne({ name });
+    if (orgExists) {
       return next({ name: 'OrgError', message: 'Organization already exists' });
     }
     const org = new Organization({
@@ -45,6 +46,7 @@ router.post('/', tokenValidator, async (req, res, next) => {
       role: 'OWNER',
       orgId: savedOrg.id,
     });
+    user.activeOrganization = savedOrg.id;
     await user.save();
     res.status(201).json(org);
   } catch (error) {

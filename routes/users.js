@@ -57,7 +57,7 @@ router.get('/:token', async (req, res, next) => {
       const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 }).populate('activeOrganization', { id: 1, name: 1 });
 
       return res.json({
-        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization,
+        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true,
       });
     }
   } catch (error) {
