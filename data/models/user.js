@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  activeOrganization: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Organization',
+  },
   tickets: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Ticket',

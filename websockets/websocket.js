@@ -7,6 +7,7 @@ const User = require('../data/models/user');
 const createTicket = require('../utils/createTicket');
 const { getActiveTickets, getAllTickets } = require('../utils/getTickets');
 const { updateTicketDeparture } = require('../utils/updateTicket');
+const changeActiveOrganization = require('../utils/changeActiveOrganization');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
@@ -57,9 +58,12 @@ const changeOrganization = async (socket, metadata, messageJSON) => {
   }
   // send the new tickets
   if (found) {
+    await changeActiveOrganization(metadata.userId, metadata.activeOrganization, (error) => {
+      handleError(socket, error);
+    });
     socket.send(JSON.stringify({
       type: 'all_tickets',
-      contents: await getAllTickets(metadata.activeOrganization, (error) => {
+      contents: await getActiveTickets(metadata.activeOrganization, (error) => {
         handleError(socket, error);
       }),
     }));
