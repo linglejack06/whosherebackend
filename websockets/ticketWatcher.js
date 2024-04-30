@@ -14,10 +14,11 @@ const startWatch = () => {
       if (metadata.authenticated) {
         if (metadata.activeOrganization.equals(fullDocument.organization)) {
           if (operationType === 'update') {
-            client.send(JSON.stringify({ type: 'update', contents: data.updateDescription.updatedFields }));
-            sendNotification(metadata, data.updateDescription.updatedFields);
+            client.send(JSON.stringify({ type: 'finish_ticket', contents: fullDocument }));
+            sendNotification(metadata, fullDocument);
           } else if (operationType === 'insert') {
-            client.send(JSON.stringify({ type: 'insert', contents: fullDocument }));
+            client.send(JSON.stringify({ type: 'add_ticket', contents: fullDocument }));
+            sendNotification(metadata, fullDocument);
           }
         }
       }

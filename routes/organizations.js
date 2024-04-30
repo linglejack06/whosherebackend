@@ -11,7 +11,6 @@ router.get('/', async (req, res, next) => {
     const organizations = await Organization.find({});
     res.json(organizations);
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
@@ -48,9 +47,9 @@ router.post('/', tokenValidator, async (req, res, next) => {
     });
     user.activeOrganization = savedOrg.id;
     await user.save();
-    res.status(201).json(org);
+    return res.status(201).json(org);
   } catch (error) {
-    next({
+    return next({
       name: 'OrgAuthError',
       message: error.message,
     });
@@ -70,7 +69,7 @@ router.post('/:id/users', tokenValidator, async (req, res, next) => {
       org.members = [...org.members, user.id];
       user.organizations = [...user.organizations, { role: 'MEMBER', orgId: org.id }];
       await org.save();
-      const savedUser = await user.save();
+      await user.save();
       res.status(201).json(org);
     } else if (!pwCorrect) {
       next({
