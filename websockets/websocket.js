@@ -110,16 +110,21 @@ const acceptMessage = async (socket, msg) => {
     messageJSON.sender = metadata.id;
     switch (messageJSON.type) {
       case 'new_ticket':
-        socket.send(JSON.stringify({
-          type: 'user_ticket',
-          contents: await createTicket(
-            metadata,
-            messageJSON.fields,
-            (error) => {
-              handleError(socket, error);
-            },
-          ),
-        }));
+        const ticket = await createTicket(
+          metadata,
+          messageJSON.fields,
+          (error) => handleError(socket, error),
+        );
+        console.log(ticket);
+        if (ticket) {
+          console.log('response sent');
+          socket.send(JSON.stringify({
+            type: 'user_ticket',
+            contents: ticket,
+          }));
+        } else {
+          console.log('no response');
+        }
         return;
       case 'change_active_organization':
         await changeOrganization(socket, metadata, messageJSON);

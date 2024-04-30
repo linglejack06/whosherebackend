@@ -16,7 +16,6 @@ const ticketSchema = new mongoose.Schema({
   },
   departureTime: {
     type: Date,
-    required: true,
   },
   departureStatus: {
     type: String,
