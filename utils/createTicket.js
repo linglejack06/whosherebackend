@@ -7,6 +7,14 @@ const createTicket = async (metadata, fields, handleError) => {
     const {
       departureDate, arrival, orgId, departureStatus,
     } = fields;
+    const user = await User.findById(metadata.userId);
+    const activeTicket = user.tickets.find((ticket) => ticket.departureTime === null);
+    if (activeTicket) {
+      return handleError({
+        type: 'default',
+        message: 'An Active Ticket has already been created',
+      });
+    }
     const ticket = new Ticket({
       organization: orgId,
       user: metadata.userId,
@@ -17,7 +25,6 @@ const createTicket = async (metadata, fields, handleError) => {
     });
     const savedTicket = await ticket.save();
     // add ticket to user
-    const user = await User.findById(metadata.userId);
     user.tickets = user.tickets.concat(savedTicket.id);
     await user.save();
 
