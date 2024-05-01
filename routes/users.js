@@ -54,10 +54,10 @@ router.get('/:token', async (req, res, next) => {
   try {
     const decodedToken = await jwt.decode(token, process.env.SECRET_KEY);
     if (decodedToken) {
-      const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 }).populate('activeOrganization', { id: 1, name: 1 });
-
+      const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 }).populate('activeOrganization', { id: 1, name: 1 }).populate('tickets');
+      const activeTicket = user.tickets.find((t) => t.departureTime === null);
       return res.json({
-        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true,
+        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket,
       });
     }
   } catch (error) {

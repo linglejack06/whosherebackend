@@ -115,7 +115,6 @@ const acceptMessage = async (socket, msg) => {
           messageJSON.fields,
           (error) => handleError(socket, error),
         );
-        console.log(ticket);
         if (ticket) {
           console.log('response sent');
           socket.send(JSON.stringify({
