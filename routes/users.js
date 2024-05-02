@@ -56,6 +56,7 @@ router.get('/:token', async (req, res, next) => {
     if (decodedToken) {
       const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 }).populate('activeOrganization', { id: 1, name: 1 }).populate('tickets');
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
+      console.log(activeTicket);
       return res.json({
         name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket,
       });

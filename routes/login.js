@@ -7,7 +7,7 @@ router.post('/', async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username: username.toLowerCase() }).populate('organizations.orgId', { id: 1, name: 1 }).populate('activeOrganization', { id: 1, name: 1 });
+    const user = await User.findOne({ username: username.toLowerCase() }).populate('organizations.orgId', { id: 1, name: 1 }).populate('activeOrganization', { id: 1, name: 1 }).populate('tickets');
 
     if (user) {
       const pwCorrect = await bcrpyt.compare(password, user.passwordHash);
@@ -24,8 +24,11 @@ router.post('/', async (req, res, next) => {
       const token = jwt.sign(userForToken, process.env.SECRET_KEY, {
         expiresIn: '24h',
       });
+
+      const activeTicket = user.tickets.find((t) => t.departureTime === null);
+      console.log(activeTicket);
       return res.json({
-        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), activeOrganization: user.activeOrganization,
+        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), activeOrganization: user.activeOrganization, activeTicket,
       });
     }
     next({

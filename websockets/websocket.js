@@ -128,7 +128,7 @@ const acceptMessage = async (socket, msg) => {
       case 'change_active_organization':
         await changeOrganization(socket, metadata, messageJSON);
         return;
-      case 'end_ticket':
+      case 'finish_ticket':
         await updateTicketDeparture(
           messageJSON.fields.id,
           {
