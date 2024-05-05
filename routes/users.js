@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const NotificationToken = require('../data/models/notificationToken');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
+const { getActiveTickets } = require('../utils/getTickets');
 
 const router = express.Router();
 
@@ -57,8 +58,9 @@ router.get('/:token', async (req, res, next) => {
       const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 }).populate('activeOrganization', { id: 1, name: 1 }).populate('tickets');
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
       console.log(activeTicket);
+      const tickets = getActiveTickets(user.activeOrganization.id, next);
       return res.json({
-        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket,
+        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket, tickets,
       });
     }
   } catch (error) {

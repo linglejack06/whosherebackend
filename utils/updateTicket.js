@@ -36,7 +36,10 @@ const updateTicketDeparture = async (id, departure, handleError) => {
       { new: true },
     );
   } catch (error) {
-    return handleError(error);
+    return handleError({
+      type: 'default',
+      message: error.message,
+    });
   }
 };
 
