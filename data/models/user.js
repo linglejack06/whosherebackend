@@ -3,6 +3,12 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
 const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+    unique: true,
+    required: true,
+  },
   username: {
     type: String,
     minLength: 5,

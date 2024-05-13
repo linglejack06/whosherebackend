@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const NotificationToken = require('../data/models/notificationToken');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
-const { getActiveTickets } = require('../utils/getTickets');
 
 const router = express.Router();
 
@@ -20,12 +19,13 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   const {
-    username, password, organizations, firstName, lastName,
+    email, username, password, organizations, firstName, lastName,
   } = req.body;
   try {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = new User({
+      email,
       username: username.toLowerCase(),
       passwordHash,
       organizations,
@@ -58,9 +58,8 @@ router.get('/:token', async (req, res, next) => {
       const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1 }).populate('activeOrganization', { id: 1, name: 1 }).populate('tickets');
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
       console.log(activeTicket);
-      const tickets = getActiveTickets(user.activeOrganization.id, next);
       return res.json({
-        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket, tickets,
+        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket,
       });
     }
   } catch (error) {
