@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
   organizations: [
     {
       role: {
-        type: 'String',
+        type: String,
         enum: ['MEMBER', 'OWNER'],
         default: 'MEMBER',
       },
@@ -49,6 +49,10 @@ const userSchema = new mongoose.Schema({
   notificationToken: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'NotificationToken',
+  },
+  otp: {
+    type: Number,
+    expires: '10m',
   },
 });
 

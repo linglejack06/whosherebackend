@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const NotificationToken = require('../data/models/notificationToken');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
+const { sendMail } = require('../utils/MailClient');
 
 const router = express.Router();
 
@@ -92,6 +93,36 @@ router.post('/:token/activeOrganization', async (req, res, next) => {
     }
   } catch (error) {
     return next(error);
+  }
+});
+
+router.post('/verifyEmail', async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      user.otp = sendMail(user.email, next);
+      await user.save();
+      return res.status(200);
+    }
+    return next({ name: 'CustomError', message: 'Email does not exist for a user' });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+router.post('/resetPassword', async (req, res, next) => {
+  try {
+    const { otp, email, newPassword } = req.body;
+    const user = await User.findOne({ email });
+    if (user && (user.otp !== null && user.otp === otp)) {
+      user.passwordHash = await bcrypt.hash(newPassword, 10);
+      await user.save();
+      return res.status(200);
+    }
+    return next({ name: 'CustomError', message: 'One time password has expired' });
+  } catch (err) {
+    next(err);
   }
 });
 
