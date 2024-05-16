@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendMail = (to, next) => {
+const sendMail = (to, next) => {
   const uniqueCode = Math.floor(Math.random() * 9000 + 1000);
   const emailOptions = {
     from: process.env.GMAIL_USERNAME,
@@ -31,3 +31,5 @@ export const sendMail = (to, next) => {
   });
   return uniqueCode;
 };
+
+module.exports = sendMail;

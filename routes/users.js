@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const NotificationToken = require('../data/models/notificationToken');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
-const { sendMail } = require('../utils/MailClient');
+const sendMail = require('../utils/MailClient');
 
 const router = express.Router();
 
@@ -115,7 +115,7 @@ router.post('/resetPassword', async (req, res, next) => {
   try {
     const { otp, email, newPassword } = req.body;
     const user = await User.findOne({ email });
-    if (user && (user.otp !== null && user.otp === otp)) {
+    if (user && (user.otp !== null && user.otp === parseInt(otp, 10))) {
       user.passwordHash = await bcrypt.hash(newPassword, 10);
       await user.save();
       return res.status(200);
