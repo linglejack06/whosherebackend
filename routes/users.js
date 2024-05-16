@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = new User({
-      email,
+      email: email.toLowerCase(),
       username: username.toLowerCase(),
       passwordHash,
       organizations,
@@ -42,9 +42,9 @@ router.post('/', async (req, res, next) => {
     const token = jwt.sign(userForToken, process.env.SECRET_KEY, {
       expiresIn: '24h',
     });
-    const savedUser = await user.save();
+    await user.save();
     res.status(201).json({
-      token, name: `${user.firstName} ${user.lastName}`, username,
+      token, name: `${user.firstName} ${user.lastName}`, username, email,
     });
   } catch (error) {
     next(error);
@@ -60,7 +60,7 @@ router.get('/:token', async (req, res, next) => {
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
       console.log(activeTicket);
       return res.json({
-        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket,
+        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket, email: user.email,
       });
     }
   } catch (error) {
@@ -105,7 +105,7 @@ router.post('/verifyEmail', async (req, res, next) => {
       await user.save();
       return res.status(200);
     }
-    return next({ name: 'CustomError', message: 'Email does not exist for a user' });
+    return next({ name: 'EmailError', message: 'Email does not exist for a user' });
   } catch (err) {
     return next(err);
   }
@@ -120,9 +120,9 @@ router.post('/resetPassword', async (req, res, next) => {
       await user.save();
       return res.status(200);
     }
-    return next({ name: 'CustomError', message: 'One time password has expired' });
+    return next({ name: 'EmailError', message: 'One time password has expired' });
   } catch (err) {
-    next(err);
+    return next(err);
   }
 });
 
