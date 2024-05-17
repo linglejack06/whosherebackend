@@ -96,34 +96,34 @@ router.post('/:token/activeOrganization', async (req, res, next) => {
   }
 });
 
-router.post('/verifyEmail', async (req, res, next) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (user) {
-      user.otp = sendMail(user.email, next);
-      await user.save();
-      return res.status(200);
-    }
-    return next({ name: 'EmailError', message: 'Email does not exist for a user' });
-  } catch (err) {
-    return next(err);
-  }
-});
-
-router.post('/resetPassword', async (req, res, next) => {
-  try {
-    const { otp, email, newPassword } = req.body;
-    const user = await User.findOne({ email });
-    if (user && (user.otp !== null && user.otp === parseInt(otp, 10))) {
-      user.passwordHash = await bcrypt.hash(newPassword, 10);
-      await user.save();
-      return res.status(200);
-    }
-    return next({ name: 'EmailError', message: 'One time password has expired' });
-  } catch (err) {
-    return next(err);
-  }
-});
+// router.post('/verifyEmail', async (req, res, next) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email });
+//     if (user) {
+//       user.otp = sendMail(user.email, next);
+//       await user.save();
+//       return res.status(200);
+//     }
+//     return next({ name: 'EmailError', message: 'Email does not exist for a user' });
+//   } catch (err) {
+//     return next(err);
+//   }
+// });
+//
+// router.post('/resetPassword', async (req, res, next) => {
+//   try {
+//     const { otp, email, newPassword } = req.body;
+//     const user = await User.findOne({ email });
+//     if (user && (user.otp !== null && user.otp === parseInt(otp, 10))) {
+//       user.passwordHash = await bcrypt.hash(newPassword, 10);
+//       await user.save();
+//       return res.status(200);
+//     }
+//     return next({ name: 'EmailError', message: 'One time password has expired' });
+//   } catch (err) {
+//     return next(err);
+//   }
+// });
 
 module.exports = router;
