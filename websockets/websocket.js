@@ -23,8 +23,9 @@ const authenticate = async (token, metadata, handleError) => {
         metadata.authenticated = true;
         metadata.userId = user.id;
         metadata.organizations = user.organizations.map((org) => org.orgId);
-        // eslint-disable-next-line prefer-destructuring
-        metadata.activeOrganization = metadata.organizations[0];
+        metadata.activeOrganization = user.activeOrganization
+          ? user.activeOrganization
+          : metadata.organizations[0];
       } else {
         metadata.authenticated = false;
         handleError({ type: 'AuthError', message: 'Failed to Authenticate' });
@@ -48,31 +49,19 @@ const handleError = (socket, error) => {
 };
 
 const changeOrganization = async (socket, metadata, messageJSON) => {
-  let found = false;
-  for (let i = 0; i < metadata.organizations.length; i += 1) {
-    if (metadata.organizations[i].equals(messageJSON.fields.organization)) {
-      metadata.activeOrganization = metadata.organizations[i];
-      found = true;
-      break;
-    }
-  }
-  // send the new tickets
-  if (found) {
-    await changeActiveOrganization(metadata.userId, metadata.activeOrganization, (error) => {
+  const user = await changeActiveOrganization(
+    metadata.userId,
+    messageJSON.fields.organization,
+    (error) => {
       handleError(socket, error);
-    });
-    socket.send(JSON.stringify({
-      type: 'all_tickets',
-      contents: await getActiveTickets(metadata.activeOrganization, (error) => {
-        handleError(socket, error);
-      }),
-    }));
-  } else {
-    handleError(socket, {
-      type: 'operation_fail',
-      message: 'requested organization does not exist in user\'s organizations',
-    });
-  }
+    },
+  );
+  socket.send(JSON.stringify({
+    type: 'active_tickets',
+    contents: await getActiveTickets(user.activeOrganization, (error) => {
+      handleError(socket, error);
+    }),
+  }));
 };
 
 const acceptMessage = async (socket, msg) => {
@@ -94,16 +83,13 @@ const acceptMessage = async (socket, msg) => {
       },
     );
 
-    if (metadata.authenticated) {
+    if (metadata.authenticated && metadata.activeOrganization !== null) {
       socket.send(JSON.stringify({
-        type: 'all_tickets',
+        type: 'active_tickets',
         contents: await getActiveTickets(
           metadata.activeOrganization,
           (error) => handleError(socket, error),
         ),
-      }));
-      socket.send(JSON.stringify({
-        ...await User.findById(metadata.userId).populate('organizations.orgId'),
       }));
     }
   } else if (metadata.authenticated) {
@@ -139,6 +125,15 @@ const acceptMessage = async (socket, msg) => {
             handleError(socket, error);
           },
         );
+        return;
+      case 'all_tickets':
+        socket.send(JSON.stringify({
+          type: 'all_tickets',
+          contents: await getAllTickets(
+            messageJSON.fields.orgId,
+            (error) => handleError(socket, error),
+          ),
+        }));
         return;
       default:
         handleError(socket, {
