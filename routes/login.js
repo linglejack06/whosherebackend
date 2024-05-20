@@ -11,9 +11,9 @@ router.post('/', async (req, res, next) => {
   try {
     let user;
     if (username.match(EMAIL_REGEX)) {
-      user = await User.findOne({ email: username.toLowerCase() }).populate('organizations.orgId', { id: 1, name: 1, role: 1 }).populate('activeOrganization', { id: 1, name: 1, role: 1 }).populate('tickets');
+      user = await User.findOne({ email: username.toLowerCase() }).populate('organizations.orgId', { id: 1, name: 1, owner: 1 }).populate('activeOrganization', { id: 1, name: 1, owner: 1 }).populate('tickets');
     } else {
-      user = await User.findOne({ username: username.toLowerCase() }).populate('organizations.orgId', { id: 1, name: 1, role: 1 }).populate('activeOrganization', { id: 1, name: 1, role: 1 }).populate('tickets');
+      user = await User.findOne({ username: username.toLowerCase() }).populate('organizations.orgId', { id: 1, name: 1, owner: 1 }).populate('activeOrganization', { id: 1, name: 1, owner: 1 }).populate('tickets');
     }
 
     if (user) {

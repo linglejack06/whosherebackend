@@ -56,7 +56,7 @@ router.get('/:token', async (req, res, next) => {
   try {
     const decodedToken = await jwt.decode(token, process.env.SECRET_KEY);
     if (decodedToken) {
-      const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1, role: 1 }).populate('activeOrganization', { id: 1, name: 1, role: 1 }).populate('tickets');
+      const user = await User.findById(decodedToken.id).populate('organizations.orgId', { name: 1, id: 1, owner: 1 }).populate('activeOrganization', { id: 1, name: 1, owner: 1 }).populate('tickets');
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
       console.log(activeTicket);
       return res.json({
