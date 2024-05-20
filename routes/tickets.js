@@ -3,11 +3,21 @@ const Ticket = require('../data/models/ticket');
 const createTicket = require('../utils/createTicket');
 
 const tokenValidator = require('../utils/tokenValidation');
-const { getActiveTickets } = require('../utils/getTickets');
+const { getActiveTickets, getTicketsFromTime } = require('../utils/getTickets');
 
 router.get('/', async (req, res, next) => {
   try {
     const tickets = await Ticket.find({ organization: req.params.orgId });
+    res.json(tickets);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/filtered', async (req, res, next) => {
+  try {
+    const { startTime, endTime } = req.body;
+    const tickets = await getTicketsFromTime(req.params.orgId, startTime, endTime, next);
     res.json(tickets);
   } catch (error) {
     next(error);

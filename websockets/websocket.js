@@ -5,7 +5,7 @@ const uniqid = require('uniqid');
 const jwt = require('jsonwebtoken');
 const User = require('../data/models/user');
 const createTicket = require('../utils/createTicket');
-const { getActiveTickets, getAllTickets } = require('../utils/getTickets');
+const { getActiveTickets, getAllTickets, getTicketsFromTime } = require('../utils/getTickets');
 const { updateTicketDeparture } = require('../utils/updateTicket');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
 
@@ -129,8 +129,10 @@ const acceptMessage = async (socket, msg) => {
       case 'all_tickets':
         socket.send(JSON.stringify({
           type: 'all_tickets',
-          contents: await getAllTickets(
+          contents: await getTicketsFromTime(
             messageJSON.fields.orgId,
+            messageJSON.fields.startTime,
+            messageJSON.fields.endTime,
             (error) => handleError(socket, error),
           ),
         }));
