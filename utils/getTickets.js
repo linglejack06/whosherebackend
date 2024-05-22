@@ -16,13 +16,13 @@ const getTicketsFromTime = async (org, start, end, handleError) => {
       startTime = new Date();
       startTime.setDate(startTime.getDate() - 1);
     } else {
-      startTime = start;
+      startTime = new Date(start);
     }
     let endTime;
     if (!end) {
       endTime = new Date();
     } else {
-      endTime = end;
+      endTime = new Date(end);
     }
     startTime = startTime.getTime();
     endTime = endTime.getTime();

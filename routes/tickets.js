@@ -16,7 +16,7 @@ router.get('/', async (req, res, next) => {
 
 router.get('/filtered', async (req, res, next) => {
   try {
-    const { startTime, endTime } = req.body;
+    const { startTime, endTime } = req.query;
     const tickets = await getTicketsFromTime(req.params.orgId, startTime, endTime, next);
     res.json(tickets);
   } catch (error) {

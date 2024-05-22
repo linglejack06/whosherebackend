@@ -35,7 +35,7 @@ router.post('/', async (req, res, next) => {
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
       console.log(activeTicket);
       return res.json({
-        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), activeOrganization: user.activeOrganization, email: user.email, username: user.username, activeTicket,
+        token, name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), activeOrganization: user.activeOrganization, email: user.email, username: user.username, activeTicket, id: user.id,
       });
     }
     next({
