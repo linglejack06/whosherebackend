@@ -29,8 +29,8 @@ const getTicketsFromTime = async (org, start, end, handleError) => {
 
     const tickets = await Ticket.find({ organization: org }).populate('user', { firstName: 1, lastName: 1, username: 1 });
     const filtered = tickets.filter((ticket) => (
-      ticket.departureTime.getTime() >= startTime
-        && ticket.departureTime.getTime() <= endTime
+      ticket.arrival.getTime() >= startTime
+        && ticket.arrival.getTime() <= endTime
     ));
     return filtered;
   } catch (error) {
