@@ -1,4 +1,5 @@
 const Ticket = require('../data/models/ticket');
+const User = require('../data/models/user');
 
 const getAllTickets = async (org, handleError) => {
   try {
@@ -47,4 +48,19 @@ const getActiveTickets = async (org, handleError) => {
   }
 };
 
-module.exports = { getAllTickets, getActiveTickets, getTicketsFromTime };
+const getUserTickets = async (userId, handleError) => {
+  try {
+    if (!userId) {
+      handleError({ message: 'No User Id Provided' });
+    }
+    const user = await User.findById(userId);
+    const tickets = await Ticket.find({ user: user.id, organization: user.activeOrganization });
+    return tickets;
+  } catch (error) {
+    return handleError({ message: 'failed to fetch user tickets' });
+  }
+};
+
+module.exports = {
+  getAllTickets, getActiveTickets, getTicketsFromTime, getUserTickets,
+};

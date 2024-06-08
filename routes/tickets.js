@@ -3,7 +3,7 @@ const Ticket = require('../data/models/ticket');
 const createTicket = require('../utils/createTicket');
 
 const tokenValidator = require('../utils/tokenValidation');
-const { getActiveTickets, getTicketsFromTime } = require('../utils/getTickets');
+const { getActiveTickets, getTicketsFromTime, getUserTickets } = require('../utils/getTickets');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -24,6 +24,15 @@ router.get('/filtered', async (req, res, next) => {
   }
 });
 
+router.get('/user', async (req, res, next) => {
+  try {
+    const { userId } = req.query;
+    const tickets = await getUserTickets(userId, next);
+    res.json(tickets);
+  } catch (error) {
+    next(error);
+  }
+});
 router.get('/unfinished', async (req, res, next) => {
   try {
     const tickets = await getActiveTickets(
