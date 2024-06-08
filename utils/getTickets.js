@@ -1,10 +1,16 @@
 const Ticket = require('../data/models/ticket');
 const User = require('../data/models/user');
 
+const sortTickets = (tickets) => tickets.sort((a, b) => {
+  if (a > b) {
+    return -1;
+  }
+  return 1;
+});
 const getAllTickets = async (org, handleError) => {
   try {
     const tickets = await Ticket.find({ organization: org }).populate('user', { firstName: 1, lastName: 1, username: 1 });
-    return tickets;
+    return sortTickets(tickets);
   } catch (error) {
     return handleError({ message: 'failed getting tickets' });
   }
@@ -33,7 +39,7 @@ const getTicketsFromTime = async (org, start, end, handleError) => {
       ticket.arrival.getTime() >= startTime
         && ticket.arrival.getTime() <= endTime
     ));
-    return filtered;
+    return sortTickets(filtered);
   } catch (error) {
     handleError({ message: error.message });
   }
@@ -42,7 +48,7 @@ const getTicketsFromTime = async (org, start, end, handleError) => {
 const getActiveTickets = async (org, handleError) => {
   try {
     const tickets = await Ticket.find({ organization: org, active: true }).populate('user', { firstName: 1, lastName: 1, username: 1 });
-    return tickets;
+    return sortTickets(tickets);
   } catch (error) {
     return handleError({ message: 'failed getting tickets' });
   }
@@ -55,7 +61,7 @@ const getUserTickets = async (userId, handleError) => {
     }
     const user = await User.findById(userId);
     const tickets = await Ticket.find({ user: user.id, organization: user.activeOrganization });
-    return tickets;
+    return sortTickets(tickets);
   } catch (error) {
     return handleError({ message: 'failed to fetch user tickets' });
   }
