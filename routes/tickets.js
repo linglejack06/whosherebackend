@@ -4,6 +4,7 @@ const createTicket = require('../utils/createTicket');
 
 const tokenValidator = require('../utils/tokenValidation');
 const { getActiveTickets, getTicketsFromTime, getUserTickets } = require('../utils/getTickets');
+const deleteTicket = require('../utils/deleteTicket');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -62,6 +63,14 @@ router.put('/:ticketId', async (req, res, next) => {
       { new: true, runValidators: true, context: 'query' },
     );
     res.json(updatedTicket);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:ticketId', async (req, res, next) => {
+  try {
+    return deleteTicket(req.params.ticketId, next);
   } catch (error) {
     next(error);
   }

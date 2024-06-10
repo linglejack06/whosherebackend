@@ -10,6 +10,7 @@ const {
 } = require('../utils/getTickets');
 const { updateTicketDeparture } = require('../utils/updateTicket');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
+const deleteTicket = require('../utils/deleteTicket');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
@@ -144,6 +145,15 @@ const acceptMessage = async (socket, msg) => {
           type: 'all_user_tickets',
           contents: await getUserTickets(
             messageJSON.fields.userId,
+            (error) => handleError(socket, error),
+          ),
+        }));
+        return;
+      case 'delete_ticket':
+        socket.send(JSON.stringify({
+          type: 'delete_ticket',
+          contents: await deleteTicket(
+            messageJSON.fields.id,
             (error) => handleError(socket, error),
           ),
         }));
