@@ -9,6 +9,7 @@ async function deleteTicket(ticketId, setError) {
     return 'Fail';
   } catch (error) {
     setError(error);
+    return 'Fail';
   }
 }
 

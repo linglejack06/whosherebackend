@@ -150,10 +150,13 @@ const acceptMessage = async (socket, msg) => {
         }));
         return;
       case 'delete_ticket':
-        await deleteTicket(
-          messageJSON.fields.id,
-          (error) => handleError(socket, error),
-        );
+        socket.send(JSON.stringify({
+          type: 'confirmed_delete_ticket',
+          contents: await deleteTicket(
+            messageJSON.fields.id,
+            (error) => handleError(socket, error),
+          ),
+        }));
         return;
       default:
         handleError(socket, {
