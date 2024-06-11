@@ -14,16 +14,16 @@ const startWatch = () => {
         delete fullDocument.__v;
       }
       if (metadata.authenticated) {
-        if (metadata.activeOrganization.equals(fullDocument.organization)) {
+        if (fullDocument && metadata.activeOrganization.equals(fullDocument.organization)) {
           if (operationType === 'update') {
             client.send(JSON.stringify({ type: 'finish_ticket', contents: fullDocument }));
             sendNotification(metadata, fullDocument);
           } else if (operationType === 'insert') {
             client.send(JSON.stringify({ type: 'add_ticket', contents: fullDocument }));
             sendNotification(metadata, fullDocument);
-          } else if (operationType === 'delete') {
-            client.send(JSON.stringify({ type: 'delete_ticket', contents: data.documentKey.id }));
           }
+        } else if (operationType === 'delete') {
+          client.send(JSON.stringify({ type: 'delete_ticket', contents: data.documentKey.id }));
         }
       }
     });
