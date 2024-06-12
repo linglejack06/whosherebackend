@@ -60,7 +60,7 @@ router.get('/:token', async (req, res, next) => {
       const activeTicket = user.tickets.find((t) => t.departureTime === null);
       console.log(activeTicket);
       return res.json({
-        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket, email: user.email, id: user.id,
+        name: `${user.firstName} ${user.lastName}`, organizations: user.organizations.map((org) => org.orgId), username: user.username, activeOrganization: user.activeOrganization, active: true, activeTicket, email: user.email, id: user.id, token,
       });
     }
   } catch (error) {
