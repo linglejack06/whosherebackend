@@ -13,6 +13,7 @@ const startWatch = () => {
         delete fullDocument._id;
         delete fullDocument.__v;
       }
+      console.log(metadata);
       if (metadata.authenticated) {
         if (fullDocument && metadata.activeOrganization.equals(fullDocument.organization)) {
           if (operationType === 'update') {
