@@ -44,6 +44,7 @@ const authenticate = async (token, metadata, handleError) => {
   }
 };
 const handleError = (socket, error) => {
+  console.error(error);
   socket.send(JSON.stringify({
     ...error,
     errorType: (error && error.type) ? error.type : 'default',
@@ -59,12 +60,23 @@ const changeOrganization = async (socket, metadata, messageJSON) => {
       handleError(socket, error);
     },
   );
-  socket.send(JSON.stringify({
-    type: 'active_tickets',
-    contents: await getActiveTickets(user.activeOrganization, (error) => {
+  if (user) {
+    const tickets = await getActiveTickets(messageJSON.fields.organization, (error) => {
       handleError(socket, error);
-    }),
-  }));
+    });
+
+    socket.send(JSON.stringify({
+      type: 'active_tickets',
+      contents: tickets,
+    }));
+
+    socket.send(JSON.stringify({
+      type: 'new_active_organization',
+      contents: user,
+    }));
+  } else {
+    handleError(socket, { message: 'Organization not found' });
+  }
 };
 
 const acceptMessage = async (socket, msg) => {

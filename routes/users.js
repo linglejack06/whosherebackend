@@ -33,7 +33,7 @@ router.post('/', async (req, res, next) => {
       firstName,
       lastName,
       tickets: [],
-      activeOrg: null,
+      activeOrganization: null,
     });
     const userForToken = {
       username: user.username,
@@ -89,7 +89,10 @@ router.post('/:token/activeOrganization', async (req, res, next) => {
     const decodedToken = await jwt.decode(req.params.token, process.env.SECRET_KEY);
     if (decodedToken) {
       const user = await changeActiveOrganization(decodedToken.id, req.body.orgId, next);
-      return res.json(user);
+      if (user) {
+        return res.json(user);
+      }
+      return next(({ message: 'failed to change organization' }));
     }
   } catch (error) {
     return next(error);
