@@ -33,7 +33,6 @@ const startServer = async () => {
   const httpServer = app.listen(3000, () => {
     console.log('server started on port 3000');
   });
-  startWatch();
   httpServer.on('upgrade', (req, socket, head) => {
     wsServer.handleUpgrade(req, socket, head, (webSocket) => {
       console.log('connection established');

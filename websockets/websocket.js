@@ -11,6 +11,7 @@ const {
 const { updateTicketDeparture } = require('../utils/updateTicket');
 const changeActiveOrganization = require('../utils/changeActiveOrganization');
 const deleteTicket = require('../utils/deleteTicket');
+const sendToUsers = require('./sendToUsers');
 
 const wsServer = new ws.Server({ noServer: true });
 const clients = new Map();
@@ -122,6 +123,7 @@ const acceptMessage = async (socket, msg) => {
             type: 'user_ticket',
             contents: ticket,
           }));
+          await sendToUsers(clients, 'add_ticket', ticket);
         } else {
           console.log('no response');
         }
@@ -130,7 +132,7 @@ const acceptMessage = async (socket, msg) => {
         await changeOrganization(socket, metadata, messageJSON);
         return;
       case 'finish_ticket':
-        await updateTicketDeparture(
+        const finishedTicket = await updateTicketDeparture(
           messageJSON.fields.id,
           {
             status: messageJSON.fields.departureStatus,
@@ -140,6 +142,7 @@ const acceptMessage = async (socket, msg) => {
             handleError(socket, error);
           },
         );
+        await sendToUsers(clients, 'finish_ticket', finishedTicket);
         return;
       case 'all_tickets':
         socket.send(JSON.stringify({
@@ -162,13 +165,17 @@ const acceptMessage = async (socket, msg) => {
         }));
         return;
       case 'delete_ticket':
+        const deleted = await deleteTicket(
+          messageJSON.fields.id,
+          (error) => handleError(socket, error),
+        );
         socket.send(JSON.stringify({
           type: 'confirmed_delete_ticket',
-          contents: await deleteTicket(
-            messageJSON.fields.id,
-            (error) => handleError(socket, error),
-          ),
+          contents: deleted.status,
         }));
+        if (deleted.status === 'success') {
+          await sendToUsers(clients, 'delete_ticket', deleted.id);
+        }
         return;
       default:
         handleError(socket, {

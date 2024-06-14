@@ -33,4 +33,12 @@ ticketSchema.set('toJSON', {
   },
 });
 
+ticketSchema.set('toObject', {
+  transform: (doc, ret) => {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    // todo: convert dates to javascript date object
+  },
+});
+
 module.exports = mongoose.model('Ticket', ticketSchema);

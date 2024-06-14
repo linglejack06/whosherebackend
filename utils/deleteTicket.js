@@ -4,12 +4,12 @@ async function deleteTicket(ticketId, setError) {
   try {
     const deleted = await Ticket.findByIdAndDelete(ticketId);
     if (deleted) {
-      return 'Success';
+      return { status: 'success', id: ticketId };
     }
-    return 'Fail';
+    return { status: 'Fail' };
   } catch (error) {
     setError(error);
-    return 'Fail';
+    return { status: 'Fail' };
   }
 }
 
