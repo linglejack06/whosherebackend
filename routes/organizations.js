@@ -61,7 +61,6 @@ router.post('/:id/users', tokenValidator, async (req, res, next) => {
   try {
     const user = await User.findById(req.decodedToken.id);
     const org = await Organization.findById(req.params.id);
-    console.log('trying to add to org', org);
     const pwCorrect = await bcrypt.compare(passkey, org.passwordHash);
     const alreadyOrganization = user.organizations.includes(
       (organization) => organization.id === req.params.id,
