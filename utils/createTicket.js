@@ -8,7 +8,7 @@ const createTicket = async (metadata, fields, handleError) => {
       departureDate, arrival, orgId, departureStatus,
     } = fields;
     const user = await User.findById(metadata.userId);
-    const activeTicket = user.tickets.find((ticket) => ticket.departureTime === null);
+    const activeTicket = user.tickets ? user.tickets.find((ticket) => ticket.departureTime === null) : null;
     if (activeTicket) {
       return handleError({
         type: 'default',

@@ -30,6 +30,7 @@ const authenticate = async (token, metadata, handleError) => {
         metadata.activeOrganization = user.activeOrganization
           ? user.activeOrganization
           : metadata.organizations[0];
+        metadata.activeTicket = (user.tickets.find((t) => t.departureTime === null)) !== null;
       } else {
         metadata.authenticated = false;
         handleError({ type: 'AuthError', message: 'Failed to Authenticate' });
@@ -118,7 +119,7 @@ const acceptMessage = async (socket, msg) => {
           (error) => handleError(socket, error),
         );
         if (ticket) {
-          console.log('response sent');
+          metadata.activeTicket = true;
           socket.send(JSON.stringify({
             type: 'user_ticket',
             contents: ticket,
@@ -142,6 +143,7 @@ const acceptMessage = async (socket, msg) => {
             handleError(socket, error);
           },
         );
+        metadata.activeTicket = false;
         await sendToUsers(clients, 'finish_ticket', finishedTicket);
         return;
       case 'all_tickets':
